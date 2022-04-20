@@ -1,0 +1,106 @@
+<script src="http://spelprogrammering.nu/simple.js">
+function start()
+{
+  paddles = {speed: 15, width: 20, height: 80, distanceToWall: 20};
+
+  ball = {x: totalWidth/2-10, y: totalHeight/2-10, 
+          size: 20, xSpeed: 10-20*random(2), ySpeed: random(12)-6};
+
+  p1 = {x: paddles.distanceToWall, 
+        y: totalHeight/2-paddles.height/2,
+        score: 0};
+
+  p2 = {x: totalWidth-paddles.distanceToWall-paddles.width, 
+        y: p1.y,
+        score: 0};
+
+  oldWhite = mixColor(200,200,200);
+  scoreFont = [zero, one, two];
+}
+
+function drawWorld()
+{
+  line(totalWidth/2, 50, totalWidth/2, totalHeight-50, 10, oldWhite, true);
+  line(0, 50, totalWidth, 50, 20, oldWhite);
+  line(0, totalHeight-50, totalWidth, totalHeight-50, 20, oldWhite);
+
+  scoreFont[p1.score](totalWidth/2-100, 100);
+  scoreFont[p2.score](totalWidth/2+50, 100);
+}
+
+function zero(x, y)
+{
+  save();
+  translate(x-5,y);
+  line(0, 0, 60, 0, 20, oldWhite);
+  line(0, 70, 60, 70, 20, oldWhite);
+  line(10, 0, 10, 70, 20, oldWhite);
+  line(50, 0, 50, 70, 20, oldWhite);
+  restore();
+}
+
+function one(x, y)
+{
+  line(x+25, y-10, x+25, y+80, 20, oldWhite);
+}
+
+function two(x, y)
+{
+  save();
+  translate(x,y);
+  line(0, 0, 60, 0, 20, oldWhite);
+  line(50, 0, 50, 40, 20, oldWhite);
+  line(60, 35, 0, 35, 20, oldWhite);
+  line(10, 40, 10, 70, 20, oldWhite);
+  line(0, 70, 60, 70, 20, oldWhite);
+  restore();
+}
+
+function update()
+{
+  if (keyboard.up)   { if (p2.y > 60) { p2.y -= paddles.speed; } }
+  if (keyboard.down) { if (p2.y < totalHeight-60-paddles.height) { p2.y += paddles.speed; } }
+  if (keyboard.w)    { if (p1.y > 60) { p1.y -= paddles.speed; } }
+  if (keyboard.s)    { if (p1.y < totalHeight-60-paddles.height) { p1.y += paddles.speed; } }
+  if (keyboard.p)    { stopUpdate(); }
+
+  ball.x += ball.xSpeed;
+  ball.y += ball.ySpeed;
+
+  if (ball.y < 60 || ball.y > (totalHeight-60) - ball.size) 
+  { 
+    ball.ySpeed = -ball.ySpeed; 
+  }
+  
+  if ((ball.x > p1.x && ball.y > p1.y - ball.size && 
+       ball.y < p1.y + paddles.height && ball.x < p1.x + paddles.width)
+      ||
+      (ball.x < p2.x && ball.y > p2.y - ball.size && 
+       ball.y < p2.y + paddles.height && ball.x > p2.x - ball.size))
+  {
+    ball.xSpeed = -ball.xSpeed - ball.xSpeed / abs(ball.xSpeed);
+    ball.ySpeed = ball.ySpeed + random(8) - 4;
+  }
+
+  if (ball.x < 0 - ball.size || ball.x >= totalWidth)
+  {
+    p1.score = ball.x >= totalWidth ? p1.score+1 : p1.score;
+    p2.score = ball.x < 0 ? p2.score+1 : p2.score;
+    paddles = {speed: 15, width: 20, height: 80, distanceToWall: 20};
+
+    ball = {x: totalWidth/2-10, y: totalHeight/2-10, 
+            size: 20, xSpeed: 10-20*random(2), ySpeed: random(12)-6};
+    if (p1.score == 3 || p2.score == 3)
+      start();
+  }
+
+  fill(mixColor(40,40,150));
+
+  drawWorld();
+
+  rectangle(p1.x, p1.y, paddles.width, paddles.height, oldWhite);
+  rectangle(p2.x, p2.y, paddles.width, paddles.height, oldWhite);
+  rectangle(ball.x, ball.y, ball.size, ball.size, oldWhite);
+}
+
+</script>
